@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Rekomendasi Jurusan Kuliah</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-blue-50 via-white to-green-50 min-h-screen flex items-center justify-center p-6">
+  <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-xl w-full border border-gray-200">
+    <h1 class="text-4xl font-bold text-center text-blue-700 mb-6">🔍 Rekomendasi Jurusan Kuliah</h1>
+
+    <form id="form" class="space-y-6">
+      <div>
+        <h2 class="text-lg font-semibold mb-2 text-gray-700">📌 Minat</h2>
+        <div class="grid grid-cols-2 gap-3 text-sm text-gray-600">
+          <label class="flex items-center space-x-2"><input type="checkbox" name="minat" value="berhitung"> <span>Suka Berhitung</span></label>
+          <label class="flex items-center space-x-2"><input type="checkbox" name="minat" value="menulis"> <span>Suka Menulis</span></label>
+          <label class="flex items-center space-x-2"><input type="checkbox" name="minat" value="biologi"> <span>Suka Biologi</span></label>
+          <label class="flex items-center space-x-2"><input type="checkbox" name="minat" value="bisnis"> <span>Suka Bisnis</span></label>
+          <label class="flex items-center space-x-2"><input type="checkbox" name="minat" value="seni"> <span>Suka Seni</span></label>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-lg font-semibold mb-2 text-gray-700">📚 Nilai Pelajaran (0-100)</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <input type="number" name="matematika" placeholder="Matematika" class="p-2 border border-gray-300 rounded-lg">
+          <input type="number" name="fisika" placeholder="Fisika" class="p-2 border border-gray-300 rounded-lg">
+          <input type="number" name="biologi" placeholder="Biologi" class="p-2 border border-gray-300 rounded-lg">
+          <input type="number" name="kimia" placeholder="Kimia" class="p-2 border border-gray-300 rounded-lg">
+          <input type="number" name="bahasa" placeholder="Bahasa" class="p-2 border border-gray-300 rounded-lg">
+          <input type="number" name="ekonomi" placeholder="Ekonomi" class="p-2 border border-gray-300 rounded-lg">
+          <input type="number" name="seni" placeholder="Seni Budaya" class="p-2 border border-gray-300 rounded-lg">
+        </div>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">Lihat Rekomendasi</button>
+    </form>
+
+    <div id="hasil" class="mt-8 hidden flex-col items-center text-center">
+      <div class="text-xl font-semibold text-green-700 animate-bounce" id="hasilText"></div>
+      <div id="detail" class="mt-4 text-gray-600 text-sm"></div>
+      <a id="linkGrafik" href="#" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition hidden">Lihat Grafik</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('form').onsubmit = function (e) {
+      e.preventDefault();
+      const minat = Array.from(document.querySelectorAll('input[name="minat"]:checked')).map(i => i.value);
+      const nilai = {};
+      ['matematika', 'fisika', 'biologi', 'kimia', 'bahasa', 'ekonomi', 'seni'].forEach(mapel => {
+        nilai[mapel] = parseInt(document.querySelector(`[name="${mapel}"]`).value || 0);
+      });
+
+      let jurusan = "";
+      let detail = "";
+
+      if (minat.includes("berhitung") && nilai.matematika >= 75 && nilai.fisika >= 70) {
+        jurusan = "Teknik";
+        detail = "Kamu menunjukkan minat pada berhitung dan memiliki nilai tinggi di Matematika dan Fisika. Jurusan Teknik cocok untukmu.";
+      } else if (minat.includes("biologi") && nilai.biologi >= 75 && nilai.kimia >= 70) {
+        jurusan = "Kedokteran";
+        detail = "Minatmu pada biologi dan nilai tinggi di Biologi serta Kimia menunjukkan potensi di bidang Kedokteran.";
+      } else if (minat.includes("menulis") && nilai.bahasa >= 75) {
+        jurusan = "Sastra";
+        detail = "Kamu suka menulis dan unggul dalam pelajaran Bahasa. Jurusan Sastra sangat cocok.";
+      } else if (minat.includes("bisnis") && nilai.ekonomi >= 75 && nilai.matematika >= 70) {
+        jurusan = "Ekonomi";
+        detail = "Kamu tertarik pada bisnis dan punya nilai baik di Ekonomi serta Matematika. Jurusan Ekonomi direkomendasikan.";
+      } else if (minat.includes("seni") && nilai.seni >= 75) {
+        jurusan = "Seni";
+        detail = "Kreativitasmu di bidang seni sangat terlihat. Jurusan Seni bisa menjadi tempat berkembangmu.";
+      } else {
+        jurusan = "Belum ada rekomendasi.";
+        detail = "Data yang kamu masukkan belum cukup kuat untuk memberikan rekomendasi spesifik. Silakan cek kembali nilai dan minat.";
+      }
+
+      document.getElementById("hasilText").innerText = `🎓 ${jurusan}`;
+      document.getElementById("detail").innerText = detail;
+      document.getElementById("hasil").classList.remove("hidden");
+      const query = new URLSearchParams(nilai).toString();
+      document.getElementById("linkGrafik").href = `grafik.html?jurusan=${jurusan}&${query}`;
+      document.getElementById("linkGrafik").classList.remove("hidden");
+    };
+  </script>
+</body>
+</html>
